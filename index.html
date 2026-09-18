@@ -373,7 +373,7 @@ function paintCapital(){
   const bar=(v,col)=>v==null?"—":`<span style="display:inline-flex;align-items:center;gap:7px;justify-content:flex-end">${fmt(v)}`+
     `<span style="display:block;width:64px;height:7px;background:var(--surface-2);border-radius:2px;overflow:hidden">`+
     `<span style="display:block;height:100%;width:${(v/mx*100).toFixed(0)}%;background:${col}"></span></span></span>`;
-  t.innerHTML=`<thead><tr><th class="nosort">Company</th><th class="nosort">Capital in<br>service MNOK</th><th class="nosort">Harvest 12m<br>t HOG</th><th class="nosort">USD per kg of<br>harvest (Andreassen)</th><th class="nosort">NOK per kg of<br>actual growth</th>`+
+  t.innerHTML=`<thead><tr><th class="nosort">Company</th><th class="nosort">Capital in<br>service MNOK</th><th class="nosort">Harvest 12m<br>t HOG</th><th class="nosort">USD per kg of<br>harvest, 12m</th><th class="nosort">NOK per kg of<br>actual growth</th>`+
     `<th class="nosort">NOK per kg of<br>nameplate</th><th class="nosort">Total invested<br>MNOK</th><th class="nosort">NOK per kg of<br>full build-out</th><th class="nosort" style="text-align:left">Build-out</th></tr></thead><tbody>`+
     cos.map(co=>{const c=D.companies[co];
       return `<tr title="${c.capital_note.replace(/"/g,"&quot;")}"><td><span class="cname"><i style="background:${COL[co]}"></i>${SHORTN[co]}</span></td>`+
@@ -381,7 +381,7 @@ function paintCapital(){
         `<td>${fmt(c.capital_total_mnok)}</td><td>${bar(c.capex_buildout,COL[co])}</td>`+
         `<td style="text-align:left;font-family:'IBM Plex Sans',sans-serif;white-space:normal;color:var(--ink-2);font-size:12px">${fmt(c.buildout_hog)} t HOG · ${c.nameplate_note}</td></tr>`;}).join("")+
     `</tbody><tfoot><tr><td colspan="9" style="text-align:left;white-space:normal;font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--muted);border-bottom:none">`+
-    `USD per kg of harvest divides capital in service by the last twelve months of HOG harvest, the measure Johan Andreassen publishes (USD/NOK 10.5). Per kg of actual growth uses the trailing four quarters, so a farm still ramping looks expensive. Per kg of capacity uses each company's own stated figure, and those differ in how real they are: Gigante's 16,000 t is a long-term target, Atlantic Sapphire's build-out includes a Phase 2 that is on hold with USD 93 m already written off. Andfjord has no harvest yet, so it has no cost per kg of growth.</td></tr></tfoot>`;
+    `USD per kg of harvest divides capital in service by the last twelve months of HOG harvest, the implied-capex measure commonly quoted for the sector (USD/NOK 10.5). Per kg of actual growth uses the trailing four quarters, so a farm still ramping looks expensive. Per kg of capacity uses each company's own stated figure, and those differ in how real they are: Gigante's 16,000 t is a long-term target, Atlantic Sapphire's build-out includes a Phase 2 that is on hold with USD 93 m already written off. Andfjord has no harvest yet, so it has no cost per kg of growth.</td></tr></tfoot>`;
 }
 
 /* ---------- full table ---------- */
