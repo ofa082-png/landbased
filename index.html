@@ -315,7 +315,7 @@ function paintLatest(){
   const t=document.getElementById("latest");
   const cols=[
     {k:"co",h:"Company",v:r=>D.companies[r.co].name,cell:r=>`<span class="cname"><i style="background:${COL[r.co]}"></i>${D.companies[r.co].name}</span>`},
-    {k:"p",h:"Period",v:r=>r.p,cell:r=>qx(r.p)+(r.half?' <span class="dim" title="half-year report">½y</span>':"")},
+    {k:"p",h:"Period",v:r=>r.p,cell:r=>qx(r.p)+(r.half?' <span class="dim" title="half-year report">· 6 months</span>':"")},
     {k:"bio",h:"Biomass<br>t LW",v:r=>r.bio,cell:r=>fmt(r.bio)},
     {k:"biosp",h:"Biomass<br>trend",cell:r=>sparkline(periods().map(p=>{const x=at(r.co,p);return x?x.bio??null:null;}),COL[r.co]),nosort:1},
     {k:"harv_hog",h:"Harvest<br>t HOG",v:r=>r.harv_hog,cell:r=>fmt(r.harv_hog)},
@@ -380,7 +380,7 @@ function paintChart(){
   });
   P.forEach((p,i)=>{
     const band=el("rect",{x:X(i)-(iw/Math.max(1,P.length-1))/2,y:mg.t,width:iw/Math.max(1,P.length-1)||20,height:ih,fill:"transparent"});
-    const show=()=>{const hits=series.map(se=>{const pt=se.pts[i];return pt&&pt.v!=null?`<span style="color:${COL[se.co]}">■</span> ${D.companies[se.co].name} <b>${fmt(pt.v,m.dec)}</b>${pt.r&&pt.r.half?(m.flow?` <span style="opacity:.7">(½ of ${qx(pt.r.p)}: ${fmt(pt.r[m.k],m.dec)})</span>`:` <span style="opacity:.7">(${qx(pt.r.p)})</span>`):""}`:null;}).filter(Boolean);
+    const show=()=>{const hits=series.map(se=>{const pt=se.pts[i];return pt&&pt.v!=null?`<span style="color:${COL[se.co]}">■</span> ${D.companies[se.co].name} <b>${fmt(pt.v,m.dec)}</b>${pt.r&&pt.r.half?(m.flow?` <span style="opacity:.7">(half of the ${qx(pt.r.p)} total, ${fmt(pt.r[m.k],m.dec)})</span>`:` <span style="opacity:.7">(${qx(pt.r.p)})</span>`):""}`:null;}).filter(Boolean);
       if(m.sea&&D.sea[p])hits.push(`<span style="color:var(--ink-2)">▪</span> Norwegian sea <b>${fmt(D.sea[p][m.k],m.dec)}</b>`);
       if(!hits.length)return; tp.show(X(i)/W*host.clientWidth,mg.t+40,`<b>${qx(p)}</b> · ${m.unit}<br>`+hits.join("<br>"));};
     band.addEventListener("pointerenter",show); band.addEventListener("pointermove",show); band.addEventListener("pointerleave",tp.hide);
@@ -656,7 +656,7 @@ function paintCapital(){
 function paintFull(){
   const t=document.getElementById("full");
   const cols=[{k:"co",h:"Company",v:r=>D.companies[r.co].name,cell:r=>`<span class="cname"><i style="background:${COL[r.co]}"></i>${SHORTN[r.co]}</span>`},
-    {k:"p",h:"Period",v:r=>r.p,cell:r=>qx(r.p)+(r.half?' <span class="dim" title="half-year report; the figures on this row cover six months">½y</span>':"")}].concat(D.metrics.map(m=>({k:m.k,h:m.label.replace(/ /g,"<br>"),v:r=>r[m.k],cell:r=>fmt(r[m.k],m.dec)})))
+    {k:"p",h:"Period",v:r=>r.p,cell:r=>qx(r.p)+(r.half?' <span class="dim" title="half-year report; the figures on this row cover six months">· 6 months</span>':"")}].concat(D.metrics.map(m=>({k:m.k,h:m.label.replace(/ /g,"<br>"),v:r=>r[m.k],cell:r=>fmt(r[m.k],m.dec)})))
     .concat([{k:"gap_t",h:"Gap to<br>reported",v:r=>r.gap_t,cell:r=>r.gap_t==null?"—":fmt(r.gap_t)},
              {k:"flagged",h:"Note",v:r=>r.flagged||null,cell:r=>r.flagged?`<span class="dim" title="${r.flagged.replace(/"/g,"&quot;")}" style="font-family:'IBM Plex Sans',sans-serif">flagged</span>`:""}]);
   const key=S.sort.t===t.id?S.sort.k:"p", dir=S.sort.t===t.id?S.sort.dir:-1;
