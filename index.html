@@ -348,7 +348,8 @@ function paintChart(){
   document.getElementById("mnote").textContent=m.note;
   // Draw at the panel's real pixel width so text and lines keep their CSS size instead of
   // scaling up with the panel; height follows the width within sensible bounds.
-  const W=Math.max(320,Math.round(host.clientWidth||660)), H=Math.round(Math.min(360,Math.max(240,W*.36)));
+  const W=Math.max(320,Math.round(host.getBoundingClientRect().width||660)), H=Math.round(Math.min(340,Math.max(220,W*.34)));
+  host._w=W;
   const P=periods(), mg={t:16,r:58,b:34,l:52},iw=W-mg.l-mg.r,ih=H-mg.t-mg.b;
   const series=S.cos.map(co=>({co,pts:P.map((p,i)=>{const r=at(co,p);return{i,v:val(r,m),r};})})).filter(s=>s.pts.some(p=>p.v!=null));
   const seaPts=m.sea?P.map((p,i)=>({i,v:D.sea[p]?D.sea[p][m.k]:null})):[];
@@ -357,7 +358,8 @@ function paintChart(){
   const hi=Math.max(...all), lo=Math.min(0,Math.min(...all)), pad=(hi-lo)*.08||1;
   const y0=lo, y1=hi+pad;
   const X=i=>mg.l+(P.length>1?iw*i/(P.length-1):iw/2), Y=v=>mg.t+ih-(v-y0)/(y1-y0)*ih;
-  const s=el("svg",{viewBox:`0 0 ${W} ${H}`,role:"img","aria-label":m.label+" by quarter"});
+  const s=el("svg",{viewBox:`0 0 ${W} ${H}`,width:W,height:H,style:`width:100%;max-width:${W}px;height:auto`,role:"img","aria-label":m.label+" by quarter"});
+  const endLabs=[];
   const ticks=5; for(let i=0;i<=ticks;i++){const v=y0+(y1-y0)*i/ticks;
     s.appendChild(el("line",{x1:mg.l,x2:mg.l+iw,y1:Y(v),y2:Y(v),class:i?"gl":"bl"}));
     s.appendChild(tx(fmt(v,m.dec>1?m.dec:(y1-y0<6?1:0)),{x:mg.l-7,y:Y(v)+4,class:"ax","text-anchor":"end"}));}
@@ -379,8 +381,11 @@ function paintChart(){
     se.pts.forEach(p=>{if(p.v==null)return;
       s.appendChild(el("circle",{cx:X(p.i),cy:Y(p.v),r:3,fill:COL[se.co],stroke:"var(--surface)","stroke-width":1.5}));});
     const last=[...se.pts].reverse().find(p=>p.v!=null);
-    s.appendChild(tx(fmt(last.v,m.dec),{x:X(last.i)+7,y:Y(last.v)+4,class:"vlab",fill:COL[se.co]}));
+    endLabs.push({x:X(last.i)+7,y:Y(last.v)+4,t:fmt(last.v,m.dec),c:COL[se.co]});
   });
+  // end labels: keep at least 12 px apart so close values do not print on top of each other
+  endLabs.sort((a,b)=>a.y-b.y).forEach((l,j,a)=>{if(j&&l.y-a[j-1].y<12)l.y=a[j-1].y+12;});
+  endLabs.forEach(l=>s.appendChild(tx(l.t,{x:l.x,y:l.y,class:"vlab",fill:l.c})));
   P.forEach((p,i)=>{
     const band=el("rect",{x:X(i)-(iw/Math.max(1,P.length-1))/2,y:mg.t,width:iw/Math.max(1,P.length-1)||20,height:ih,fill:"transparent"});
     const show=()=>{const hits=series.map(se=>{const pt=se.pts[i];return pt&&pt.v!=null?`<span style="color:${COL[se.co]}">■</span> ${D.companies[se.co].name} <b>${fmt(pt.v,m.dec)}</b>${pt.r&&pt.r.half?(m.flow?` <span style="opacity:.7">(half of the ${qx(pt.r.p)} total, ${fmt(pt.r[m.k],m.dec)})</span>`:` <span style="opacity:.7">(${qx(pt.r.p)})</span>`):""}`:null;}).filter(Boolean);
@@ -705,4 +710,7 @@ function paint(){
 }
 paint();
 addEventListener("resize",()=>{clearTimeout(window._rz);window._rz=setTimeout(paintChart,150);});
+// redraw when the chart's own panel changes width (fonts and the side table settle after first paint)
+if(window.ResizeObserver){const ch=document.getElementById("chart");
+  new ResizeObserver(()=>{const w=ch.getBoundingClientRect().width;if(Math.abs(w-(ch._w||0))>4){clearTimeout(window._rz2);window._rz2=setTimeout(paintChart,60);}}).observe(ch);}
 </script>
