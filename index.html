@@ -346,7 +346,10 @@ function paintChart(){
   const m=M[S.metric], host=document.getElementById("chart"); host.innerHTML="";
   document.getElementById("mtitle").textContent=m.label+" · "+m.unit;
   document.getElementById("mnote").textContent=m.note;
-  const P=periods(), W=660,H=330,mg={t:16,r:58,b:34,l:52},iw=W-mg.l-mg.r,ih=H-mg.t-mg.b;
+  // Draw at the panel's real pixel width so text and lines keep their CSS size instead of
+  // scaling up with the panel; height follows the width within sensible bounds.
+  const W=Math.max(320,Math.round(host.clientWidth||660)), H=Math.round(Math.min(360,Math.max(240,W*.36)));
+  const P=periods(), mg={t:16,r:58,b:34,l:52},iw=W-mg.l-mg.r,ih=H-mg.t-mg.b;
   const series=S.cos.map(co=>({co,pts:P.map((p,i)=>{const r=at(co,p);return{i,v:val(r,m),r};})})).filter(s=>s.pts.some(p=>p.v!=null));
   const seaPts=m.sea?P.map((p,i)=>({i,v:D.sea[p]?D.sea[p][m.k]:null})):[];
   const all=series.flatMap(s=>s.pts.map(p=>p.v)).concat(seaPts.map(p=>p.v)).filter(v=>v!=null);
